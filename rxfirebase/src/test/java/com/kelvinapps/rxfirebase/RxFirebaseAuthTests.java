@@ -1,5 +1,7 @@
 package com.kelvinapps.rxfirebase;
 
+import android.support.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Schedulers;
 
+import static org.assertj.core.util.Preconditions.checkNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,10 +91,14 @@ public class RxFirebaseAuthTests {
         when(mockAuth.getCurrentUser()).thenReturn(mockUser);
     }
 
-    private <T> void setupTask(Task<T> task) {
-        when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
-        when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
-        when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
+    private <T> void setupTask(@NonNull Task<T> task) {
+        try {
+            when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(checkNotNull(task));
+            when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
+            when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Test
