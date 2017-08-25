@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,6 +77,10 @@ public class RxFirebaseAuthTests {
 
     @Before
     public void setup() {
+        mockAuthTask = Tasks.<AuthResult>forResult(new MockAuthResult());
+        mockProviderQueryResultTask = Tasks.forResult(null);
+        mockVoidTask = Tasks.forResult(null);
+
         setupTask(mockAuthTask);
         setupTask(mockProviderQueryResultTask);
         setupTask(mockVoidTask);
@@ -92,13 +97,9 @@ public class RxFirebaseAuthTests {
     }
 
     private <T> void setupTask(@NonNull Task<T> task) {
-        try {
-            when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(checkNotNull(task));
-            when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
-            when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException(e);
-        }
+        when(task.addOnCompleteListener(testOnCompleteListener.capture())).thenReturn(task);
+        when(task.addOnSuccessListener(testOnSuccessListener.capture())).thenReturn(task);
+        when(task.addOnFailureListener(testOnFailureListener.capture())).thenReturn(task);
     }
 
     @Test
